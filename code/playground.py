@@ -1,47 +1,43 @@
 from tkinter import *
 from tkinter import messagebox
-from user import User
 import time
 import json
 
 FONT = ("Arial", 12, "bold")
 BEIGE = "#FFFADD"
-start_id = 0
-
-FONT = ("Arial", 12, "bold")
-BEIGE = "#FFFADD"
 logged_in = False
+
 with open("total_users.txt", "r") as data_file:
     data = data_file.read()
     total_users = int(data)
     print(total_users)
-    #data.write(f"{total_users}")
-    #total_users += 1
 
 #user = User(user_id=total_users + 1, username="SutibunG")
-
-user = User(user_id=start_id + 1, username="SutibunG")
-
-print(user.id)
-print(user.username)
+#print(user.id)
+#print(user.username)
 
 #--------------------------UI------------------------------#
 def login_screen():
 
     def signup():
+        global total_users
         new_user = username_entry.get()
         new_pass = password_entry.get()
 
         new_user_data = {
-            "Username": new_user,
-            "Password": new_pass
+            f"{total_users}": {
+                "Username": new_user,
+                "Name": "",
+                "Password": new_pass,
+                }
         }
 
         valid_user = False
 
         with open("data.json", "r") as data:
             read_data = json.load(data)
-            if read_data["Username"].lower() == new_user.lower():
+            print(read_data)
+            if read_data[total_users]["Username"].lower() == new_user.lower():
                 messagebox.showerror(title="Error", message=f"The username: {new_user} is already in use.\n Please enter another username.")
             else:
                 valid_user = True
@@ -50,6 +46,12 @@ def login_screen():
             is_ok = messagebox.askyesno(title="User Info", message=f"Username: {new_user}\nPassword: {new_pass}\n\nDoes this look correct?")
 
             if is_ok == True:
+                total_users += 1
+                with open("total_users.txt", "w") as data_file:
+                    data_file.write(f"{total_users}")
+                    print(total_users)
+
+
                 with open("data.json", "w") as data:
                     json.dump(new_user_data, data, indent=3)
                 
@@ -106,6 +108,7 @@ def login_screen():
     #Entries
     username_entry = Entry(width=40)
     username_entry.grid(column=2, row=1)
+    username_entry.focus()
     password_entry = Entry(width=40)
     password_entry.grid(column=2, row=2)
 
