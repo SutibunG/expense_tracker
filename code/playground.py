@@ -19,34 +19,49 @@ def login_screen():
         global total_users
         new_user = username_entry.get()
         new_pass = password_entry.get()
+        valid_user = False
 
         new_user_data = {
-            f"{total_users}": {
+            "User": {
                 "Username": new_user,
+                "ID": total_users,
                 "Name": "",
                 "Password": new_pass,
                 }
         }
 
-        valid_user = False
+        #Checks for space in username
+        for i in new_user:
+            if i == " ":
+                messagebox.showerror(title="Name Error", message=f"The username: {new_user} cannot contain spaces.\n Please enter another username.")
+                space_in_name = True
+                break
+            else: space_in_name = False
 
+        #Reads Data file
         with open("data.json", "r") as data:
             read_data = json.load(data)
             print(read_data)
-            if read_data[total_users]["Username"].lower() == new_user.lower():
-                messagebox.showerror(title="Error", message=f"The username: {new_user} is already in use.\n Please enter another username.")
+
+        #Username Checking
+        if space_in_name == False:
+            if read_data["User"]["Username"].lower() == new_user.lower():
+                messagebox.showerror(title="Name Error", message=f"The username: {new_user} is already in use.\n Please enter another username.")
+            elif len(new_user) < 4:
+                messagebox.showerror(title="Name Error", message=f"The username: {new_user} is too short.\n Please enter another username.")
             else:
                 valid_user = True
         
+        #If Valid Username
         if valid_user == True and len(new_pass) >= 4:
             is_ok = messagebox.askyesno(title="User Info", message=f"Username: {new_user}\nPassword: {new_pass}\n\nDoes this look correct?")
 
+            #Adds +1 user and writes data to file
             if is_ok == True:
                 total_users += 1
                 with open("total_users.txt", "w") as data_file:
                     data_file.write(f"{total_users}")
                     print(total_users)
-
 
                 with open("data.json", "w") as data:
                     json.dump(new_user_data, data, indent=3)
@@ -56,8 +71,9 @@ def login_screen():
         elif len(new_pass) < 4 and new_user != "":
             messagebox.showerror(title="Password Error", message="Please make sure password is atleast 4 characters long.")
         else:
-            messagebox.showerror(title="Error", message="Please enter a valid Username and Password.")
+            pass
 
+        
     def login():
         global logged_in
         username = username_entry.get()
@@ -67,9 +83,9 @@ def login_screen():
 
         with open("data.json", "r") as data:
             read_data = json.load(data)
-            if read_data["Username"] == username:
+            if read_data["User"]["Username"] == username:
                 valid_user = True
-            if read_data["Password"] == password:
+            if read_data["User"]["Password"] == password:
                 valid_pass = True
 
         if valid_pass == True and valid_user == True:
