@@ -12,10 +12,6 @@ with open("total_users.txt", "r") as data_file:
     total_users = int(data)
     print(total_users)
 
-#user = User(user_id=total_users + 1, username="SutibunG")
-#print(user.id)
-#print(user.username)
-
 #--------------------------UI------------------------------#
 def login_screen():
 
