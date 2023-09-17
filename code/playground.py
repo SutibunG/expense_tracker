@@ -7,7 +7,10 @@ FONT = ("Arial", 12, "bold")
 BEIGE = "#FFFADD"
 logged_in = False
 
-with open("total_users.txt", "r") as data_file:
+total_users_file = "data\\total_users.txt"
+json_file = "data\\data.json"
+
+with open(total_users_file, "r") as data_file:
     data = data_file.read()
     total_users = int(data)
     print(total_users)
@@ -39,7 +42,7 @@ def login_screen():
             else: space_in_name = False
 
         #Reads Data file
-        with open("data.json", "r") as data:
+        with open(json_file, "r") as data:
             read_data = json.load(data)
             print(read_data)
 
@@ -59,11 +62,11 @@ def login_screen():
             #Adds +1 user and writes data to file
             if is_ok == True:
                 total_users += 1
-                with open("total_users.txt", "w") as data_file:
+                with open(total_users_file, "w") as data_file:
                     data_file.write(f"{total_users}")
                     print(total_users)
 
-                with open("data.json", "w") as data:
+                with open(json_file, "w") as data:
                     json.dump(new_user_data, data, indent=3)
                 
                 username_entry.delete(0, END)
@@ -81,7 +84,7 @@ def login_screen():
         valid_user = False
         valid_pass = False
 
-        with open("data.json", "r") as data:
+        with open(json_file, "r") as data:
             read_data = json.load(data)
             if read_data["User"]["Username"] == username:
                 valid_user = True
