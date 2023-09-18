@@ -107,7 +107,7 @@ def login_screen():
         with open(json_file, "r") as data:
             read_data = json.load(data)
             for user in read_data:
-                if user["Username"].title() == username.title() or user["Username"] == username.lower() and user["Password"] == password:
+                if user["Username"].title() == username.title() and user["Password"] == password:
                     valid_user = True
                     break
                 else:
