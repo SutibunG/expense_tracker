@@ -6,33 +6,9 @@
         "Password": "new_pass"
     },
     {
-        "Username": "sutibun",
+        "Username": "Stephen",
         "ID": 2,
         "Name": "",
         "Password": "1234"
-    },
-    {
-        "Username": "jzttc",
-        "ID": 6,
-        "Name": "",
-        "Password": "1234"
-    },
-    {
-        "Username": "1234",
-        "ID": 4,
-        "Name": "",
-        "Password": "1234"
-    },
-    {
-        "Username": "test",
-        "ID": 5,
-        "Name": "",
-        "Password": "1234"
-    },
-    {
-        "Username": "Chewdu",
-        "ID": 6,
-        "Name": "",
-        "Password": "Henno"
     }
 ]
