@@ -1,8 +1,20 @@
-{
-   "User": {
-      "Username": "Kitsu",
-      "ID": 4,
-      "Name": "",
-      "Password": "Hello123"
-   }
-}
+[
+    {
+        "Username": "Kitsune",
+        "ID": 0,
+        "Name": "Kitsune CG",
+        "Password": "new_pass"
+    },
+    {
+        "Username": "sutibun",
+        "ID": 2,
+        "Name": "",
+        "Password": "1234"
+    },
+    {
+        "Username": "jzttc",
+        "ID": 6,
+        "Name": "",
+        "Password": "1234"
+    }
+]
