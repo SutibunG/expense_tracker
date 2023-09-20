@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 from datetime import *
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 import pandas as pd
 import time
 import json
@@ -10,12 +11,18 @@ FONT = ("Arial", 12, "bold")
 BEIGE = "#FAF1E4"
 SOFT_GREEN = "#CEDEBD"
 MID_GREEN = "#9EB384"
-DARK_GREEN = "#435334"
+DARK_GREY = "#435334"
 BRIGHT_GREEN = "#A2FF86"
+GOLD = "#E5D283"
+BLUE = "#4F709C"
+DARK_GREY = "#352F44"
+DARK_GRAY = "#7D7C7C"
+LIGHT_GREY = "#B4B4B3"
 logged_in = False
 ID = None
 month_text = datetime.now().strftime("%B")
 MONTHS = ["January","February","March","April","May","June", "July","August","September","October","November","December"]
+
 
 total_users_file = "data\\total_users.txt"
 json_file = "data\\data.json"
@@ -155,21 +162,21 @@ def login_screen():
     #----------------------UI-------------------------#
     #Window
     root = Tk()
-    root.title("Expense Tracker")
+    root.title("Salary Tracker")
     root.protocol("WM_DELETE_WINDOW", on_closing)
     root.eval('tk::PlaceWindow . center')
     root.minsize(width=600, height=400)
     root.maxsize(width=600, height=400)
-    root.config(bg=DARK_GREEN, padx=20, pady=10)
+    root.config(bg=DARK_GREY, padx=20, pady=10)
 
     #Labels
-    userdate_label = Label(text="Username: ", font=("Arial", 16), bg=DARK_GREEN)
+    userdate_label = Label(text="Username: ", font=("Arial", 16), bg=DARK_GREY)
     userdate_label.grid(column=1, row=2)
-    password_label = Label(text="Password:", font=("Arial", 16), bg=DARK_GREEN)
+    password_label = Label(text="Password:", font=("Arial", 16), bg=DARK_GREY)
     password_label.grid(column=1, row=3)
-    empty_label = Label(text="",bg=DARK_GREEN)
+    empty_label = Label(text="",bg=DARK_GREY)
     empty_label.grid(column=1, row=1)
-    empty_label = Label(text="",bg=DARK_GREEN)
+    empty_label = Label(text="",bg=DARK_GREY)
     empty_label.grid(column=1, row=4)
 
     #Buttons
@@ -193,14 +200,14 @@ def login_screen():
     #Radio Button
     check_state = IntVar()
     view_password = Checkbutton(text="Show Password",variable=check_state,onvalue=1, offvalue=0, command=hide_view_password)
-    view_password.config(bg=DARK_GREEN)
+    view_password.config(bg=DARK_GREY)
     view_password.grid(column=3, row=3)
 
     #Canvas
-    canvas = Canvas(width=400, height=150, bg=BEIGE, highlightbackground=SOFT_GREEN, highlightthickness=10)
+    canvas = Canvas(width=400, height=150, bg=BEIGE, highlightbackground=BLUE, highlightthickness=10)
     #bg_image = PhotoImage(file="C:\\Users\\Yungstaz\\Documents\\Projects\\Expense Tracker\\img\\login_screen.png")
     #canvas.create_image(208, 212, image=bg_image)
-    canvas.create_text(208,75, text="Expense Tracker", fill=DARK_GREEN, font=("Impact", 40))
+    canvas.create_text(208,75, text="Salary Tracker", fill=DARK_GREY, font=("Impact", 40))
     canvas.grid(column=0, row=0, columnspan=4)
 
     root.mainloop()
@@ -212,6 +219,7 @@ def profile_screen():
         read_data = json.load(data)
         #Returns the users info
         current_user = read_data[ID]["Username"]
+
 
     def show_tab():
         profile_tab.grid_forget()
@@ -233,13 +241,13 @@ def profile_screen():
         log_out_button.grid_forget()
         delete_button.grid_forget()
 
-    def setting_screen():
-        ...
-
     def log_out():
         global logged_in
-        logged_in = False
+
         root.destroy()
+        plt.close()
+        logged_in = False
+        print("Logged out")
 
     def delete_account():
         global logged_in
@@ -259,6 +267,7 @@ def profile_screen():
                 print(len(read_data))
             logged_in = False
             root.destroy()
+            plt.close()
         else:
             pass
 
@@ -267,8 +276,13 @@ def profile_screen():
         if messagebox.askyesno("Quit", "Do you want to quit?"):
             is_on = False
             root.destroy()
+            plt.close()
 
-    def yearly_report():
+    def refresh_report():
+        global current_salary
+        global plot_canvas
+
+        plt.close()
         x = ["Jan","Feb","Mar","Apr","May","June","July","Aug","Sept","Oct","Nov","Dec"]
         y = []
 
@@ -296,16 +310,17 @@ def profile_screen():
                 counter += float(j)
             y.append(counter)
             current_salary += counter
-        print(counter)
-        print(current_salary)
-        print(y)
 
         colors = ['red' if i < 2000 else 'green' for i in y]
-        fig, ax = plt.subplots()
-        ax.set_title(f"Yearly Income Report\nCurrent Annual Salary: " + '${:,.2f}'.format(current_salary))
+        fig, ax = plt.subplots(facecolor=BLUE)
+        ax.set_facecolor(BEIGE)
+        ax.set_title("Overview", loc="left")
+        #ax.set_title(f"Yearly Income Report\nCurrent Annual Salary: " + '${:,.2f}'.format(current_salary))
         bar_container = ax.bar(x, y, width=.6, color=colors)
         ax.bar_label(bar_container)
-        plt.show()
+
+        plot_canvas = FigureCanvasTkAgg(fig)
+        plot_canvas.get_tk_widget().grid(column=0, row=6, columnspan=3, rowspan=15, pady=10)
 
     def reset_data():
         monthly_report = {
@@ -342,78 +357,130 @@ def profile_screen():
         else:
             pass
         
+    def dark_mode():
+        root.config(bg=DARK_GREY)
+    def light_mode():
+        root.config(bg=BEIGE)
 
     #-------------------------UI---------------------------#
     root = Tk()
     root.title(f"{current_user}'s Profile")
     root.protocol("WM_DELETE_WINDOW", on_closing)
     root.eval('tk::PlaceWindow . center')
-    root.minsize(width=800, height=500)
-    root.maxsize(width=800, height=500)
-    root.config(bg=DARK_GREEN, padx=20, pady=10)
+    root.minsize(width=1000, height=700)
+    root.maxsize(width=1000, height=700)
+    root.config(bg=DARK_GREY, padx=20, pady=10)
+
+    #------------------Matplot DATA----------------------#
+    refresh_report()
 
     #------------Profile Frame-----------------#
-    profile_frame = LabelFrame(root, padx=15, pady=15, bg="black")
-    profile_frame.grid(column=4, row=0, columnspan=3, rowspan=6)
+    profile_frame = LabelFrame(root, bg=BLUE, padx=50)
+    profile_frame.grid(column=4, row=0, columnspan=2, rowspan=6)
 
     #Profile Label
-    user_label = Label(profile_frame, text=f"{current_user}".title(), font=FONT, bg="black", fg="white")
-    user_label.config(pady=10)
+    user_label = Label(profile_frame, text=f"{current_user}".title(), font=FONT, bg=BLUE, fg="white")
+    user_label.config(pady=21)
     user_label.grid(column=5, row=0)
 
     #Profile Buttons
-    details_button = Button(profile_frame, text="Account Details", command=...)
-    details_button.grid(column=5,row=1)
+    dashboard_button = Button(profile_frame, text="     Dark Mode    ", command=dark_mode)
+    dashboard_button.grid(column=5,row=1)
+    settings_button = Button(profile_frame, text="    Light Mode    ", command=light_mode)
+    settings_button.grid(column=5, row=2)
     reset_button = Button(profile_frame, text="     Reset Data     ", command=reset_data)
-    reset_button.grid(column=5, row=2)
-    settings_button = Button(profile_frame, text="       Settings       ", command=...)
-    settings_button.grid(column=5, row=3)
+    reset_button.grid(column=5, row=3)
     log_out_button = Button(profile_frame, text="       Log Out       ", command=log_out)
     log_out_button.grid(column=5, row=4)
     delete_button = Button(profile_frame, text=" Delete Account ", command=delete_account)
     delete_button.grid(column=5, row=5)
 
     #-------------------Data Frame-------------------#
-    data_frame = LabelFrame(root, text="Data", padx=10, pady=10)
-    data_frame.grid(column=0, row=1, rowspan=6, columnspan=2)
+    data_frame = LabelFrame(root, text="Data", padx=10, pady=50)
+    data_frame.grid(column=4, row=6, rowspan=10, columnspan=3)
 
     select_month = Label(data_frame, text="Month", font=FONT)
-    select_month.grid(column=1, row=1)
+    select_month.grid(column=4, row=6)
 
     clicked = StringVar()
-    month_list = OptionMenu(data_frame, clicked, *MONTHS)
     clicked.set(f"{month_text}")
-    month_list.grid(column=2, row=1)
+    month_list = OptionMenu(data_frame, clicked, *MONTHS)
+    month_list.grid(column=4, row=7)
 
-    date_label = Label(data_frame, text="Date", font=FONT)
+    place_holder1 = Label(data_frame, text="")
+    place_holder1.config(pady=10)
+    place_holder1.grid(column=4, row=8)
+
+    date_label = Label(data_frame, text="Date Entered", font=FONT)
     date_label.config(padx=20)
-    date_label.grid(column=1, row=2)
+    date_label.grid(column=4, row=9)
     date_entry = Entry(data_frame, width=30)
     date_entry.insert(0, date.today())
-    date_entry.grid(column=2, row=2)
+    date_entry.grid(column=4, row=10)
+
+    place_holder2 = Label(data_frame, text="")
+    place_holder2.config(pady=10)
+    place_holder2.grid(column=4, row=11)
 
     payment_label = Label(data_frame, text="Paycheck", font=FONT)
     payment_label.config(padx=40)
-    payment_label.grid(column=1, row=3)
+    payment_label.grid(column=4, row=12)
     payment_entry = Entry(data_frame, width=30)
-    payment_entry.grid(column=2, row=3)
+    payment_entry.grid(column=4, row=13)
+
+    place_holder3 = Label(data_frame, text="")
+    place_holder3.config(pady=10)
+    place_holder3.grid(column=4, row=14)
 
     #Submit
     submit_buttom = Button(data_frame, text="Submit", width=16, command=submit_data)
     submit_buttom.config(padx=20)
-    submit_buttom.grid(column=3, row=3)
+    submit_buttom.grid(column=4, row=15)
 
-    check_report = Button(data_frame, text="Check Yearly Report", command=yearly_report)
-    check_report.grid(column=2, row=4)
+    place_holder4 = Label(data_frame, text="")
+    place_holder4.config(pady=10)
+    place_holder4.grid(column=4, row=16)
 
-    #Canvas
-    canvas = Canvas(width=550, height=50, bg=BEIGE, highlightbackground=SOFT_GREEN, highlightthickness=0)
-    canvas.create_text(275,25, text="Income Tracker", fill=DARK_GREEN, font=("Impact", 20))
-    canvas.grid(column=1, row=0, columnspan=3)
+    refresh_button = Button(data_frame, text="Refresh Report", command=refresh_report)
+    refresh_button.grid(column=4, row=17)
+
+    # Dashboard Canvas
+    canvas = Canvas(width=750, height=200, bg=BLUE, highlightbackground=SOFT_GREEN, highlightthickness=0)
+    canvas.create_text(375,25, text="Dashboard", fill="white", font=("Impact", 20))
+    canvas.create_rectangle(30,175,250,80, fill=DARK_GREY)
+    canvas.create_rectangle(280,175,480,80, fill=DARK_GREY)
+    canvas.create_rectangle(510,175,730,80, fill=DARK_GREY)
+    canvas.create_text(130,120, text=f"GOAL\n\n", font=("Impact", 15), fill="white")
+    salary_text = canvas.create_text(375,120, text=f"Current Salary\n\n"+"    ${:,.2f}".format(current_salary), font=("Impact", 15), fill="white")
+    canvas.create_text(615,120, text="Remaining\n\n", font=("Impact", 15), fill="white")
+    canvas.grid(column=0, row=0, columnspan=3, rowspan=6)
+
+    goal_entry = Entry(width=20)
+    goal_entry.insert(0, 50000)
+    salary_goal = int(goal_entry.get())
+    goal_entry_window = canvas.create_window(130, 140, window=goal_entry)
+    remaing_salary = salary_goal - int(current_salary)
+    remaining_text = canvas.create_text(615,140, text="${:,.2f}".format(remaing_salary), font=("Impact", 15), fill="white")
+
+
+    def refresh_text():
+        global salary_goal
+        global remaing_salary
+
+        salary_goal = int(goal_entry.get())
+        goal_entry.delete(0, END)
+        goal_entry.insert(0, salary_goal)
+        remaing_salary = salary_goal - int(current_salary)
+
+        canvas.itemconfig(salary_text, text=f"Current Salary\n\n"+"    ${:,.2f}".format(current_salary))
+        canvas.itemconfig(remaining_text, text="${:,.2f}".format(remaing_salary))
+
+        root.after(5000, refresh_text)
+
+    refresh_text()
+
 
     root.mainloop()
-
-
 
 
 
