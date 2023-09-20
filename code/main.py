@@ -1,5 +1,8 @@
 from tkinter import *
 from tkinter import messagebox
+from datetime import *
+import matplotlib.pyplot as plt
+import pandas as pd
 import time
 import json
 
@@ -11,6 +14,8 @@ DARK_GREEN = "#435334"
 BRIGHT_GREEN = "#A2FF86"
 logged_in = False
 ID = None
+month_text = datetime.now().strftime("%B")
+MONTHS = ["January","February","March","April","May","June", "July","August","September","October","November","December"]
 
 total_users_file = "data\\total_users.txt"
 json_file = "data\\data.json"
@@ -19,12 +24,12 @@ with open(total_users_file, "r") as data_file:
     data = data_file.read()
     total_users = int(data)
 
-#--------------------------UI------------------------------#
+#--------------------------Screens------------------------------#
 def login_screen():
 
     def signup():
         global total_users
-        new_user = username_entry.get()
+        new_user = userdate_entry.get()
         new_pass = password_entry.get()
         valid_user = False
 
@@ -57,16 +62,20 @@ def login_screen():
             read_data = json.load(data)
 
         #Username Checking
-        if space_in_name == False and space_in_pass == False:
-            for user in read_data:
-                valid_user = False
-                if user["Username"].lower() == new_user.lower():
-                    messagebox.showerror(title="Name Error", message=f"The username: {new_user} is already in use.\n Please enter another username.")
-                    break
-                elif len(new_user) < 4:
-                    messagebox.showerror(title="Name Error", message=f"The username: {new_user} is too short.\n Please enter another username.")
-                else: 
-                    valid_user = True
+        try:
+            if space_in_name == False and space_in_pass == False:
+                for user in read_data:
+                    valid_user = False
+                    if user["Username"].lower() == new_user.lower():
+                        messagebox.showerror(title="Name Error", message=f"The username: {new_user} is already in use.\n Please enter another username.")
+                        break
+                    elif len(new_user) < 4:
+                        messagebox.showerror(title="Name Error", message=f"The username: {new_user} is too short.\n Please enter another username.")
+                    else: 
+                        valid_user = True
+        except UnboundLocalError:
+            messagebox.showerror(title="Wrong Info", message="Please Enter Valid Username and Password.")
+
         
         #If Valid Username
         if valid_user == True and len(new_pass) >= 4:
@@ -85,7 +94,7 @@ def login_screen():
                     data_file.write(str(len(read_data)))
                     print(len(read_data))
                 
-                username_entry.delete(0, END)
+                userdate_entry.delete(0, END)
                 password_entry.delete(0, END)
         elif len(new_pass) < 4 and new_user != "":
             messagebox.showerror(title="Password Error", message="Please make sure password is atleast 4 characters long.")
@@ -93,12 +102,11 @@ def login_screen():
             pass
         #except:
             #messagebox.showerror(title="Login Info", message="Please Enter Valid Username and Password.")
-
-        
+ 
     def login():
         global logged_in
         global ID
-        username = username_entry.get()
+        username = userdate_entry.get()
         password = password_entry.get()
         valid_user = False
         valid_pass = False
@@ -107,7 +115,7 @@ def login_screen():
         with open(json_file, "r") as data:
             read_data = json.load(data)
             for user in read_data:
-                if user["Username"].title() == username.title() or user["Username"] == username.lower() and user["Password"] == password:
+                if user["Username"].title() == username.title() and user["Password"] == password:
                     valid_user = True
                     break
                 else:
@@ -119,10 +127,9 @@ def login_screen():
             ID = index
             print("Logged In")
             logged_in = True
-            window.destroy()
+            root.destroy()
         else:
             messagebox.showerror(title="Wrong Info", message="Please Enter Valid Username and Password.")
-
 
     def hide_view_password():
         check = check_state.get()
@@ -136,27 +143,28 @@ def login_screen():
         global is_on
 
         is_on = False
-        window.destroy()
+        root.destroy()
 
     def on_closing():
         global is_on
-        
+
         if messagebox.askyesno("Quit", "Do you want to quit?"):
             is_on = False
-            window.destroy()
+            root.destroy()
 
+    #----------------------UI-------------------------#
     #Window
-    window = Tk()
-    window.title("Expense Tracker")
-    window.minsize(width=417, height=375)
-    window.maxsize(width=450, height=400)
-    window.config(bg=DARK_GREEN, padx=20, pady=10)
-    window.protocol("WM_DELETE_WINDOW", on_closing)
-    window.eval('tk::PlaceWindow . center')
+    root = Tk()
+    root.title("Expense Tracker")
+    root.protocol("WM_DELETE_WINDOW", on_closing)
+    root.eval('tk::PlaceWindow . center')
+    root.minsize(width=600, height=400)
+    root.maxsize(width=600, height=400)
+    root.config(bg=DARK_GREEN, padx=20, pady=10)
 
     #Labels
-    username_label = Label(text="Username: ", font=("Arial", 16), bg=DARK_GREEN)
-    username_label.grid(column=1, row=2)
+    userdate_label = Label(text="Username: ", font=("Arial", 16), bg=DARK_GREEN)
+    userdate_label.grid(column=1, row=2)
     password_label = Label(text="Password:", font=("Arial", 16), bg=DARK_GREEN)
     password_label.grid(column=1, row=3)
     empty_label = Label(text="",bg=DARK_GREEN)
@@ -176,9 +184,9 @@ def login_screen():
     exit_button.grid(column=3, row=5)
 
     #Entries
-    username_entry = Entry(width=40)
-    username_entry.grid(column=2, row=2)
-    username_entry.focus()
+    userdate_entry = Entry(width=40)
+    userdate_entry.grid(column=2, row=2)
+    userdate_entry.focus()
     password_entry = Entry(show="*", width=40)
     password_entry.grid(column=2, row=3)
 
@@ -195,16 +203,43 @@ def login_screen():
     canvas.create_text(208,75, text="Expense Tracker", fill=DARK_GREEN, font=("Impact", 40))
     canvas.grid(column=0, row=0, columnspan=4)
 
-    window.mainloop()
+    root.mainloop()
 
 def profile_screen():
     global ID
 
     with open(json_file, "r") as data:
         read_data = json.load(data)
-
         #Returns the users info
         current_user = read_data[ID]["Username"]
+
+    def show_tab():
+        profile_tab.grid_forget()
+        hide_profile_tab.grid(column=5, row=0)
+        
+        user_label.grid(column=5, row=1)
+        details_button.grid(column=5,row=2)
+        settings_button.grid(column=5, row=3)
+        log_out_button.grid(column=5, row=4)
+        delete_button.grid(column=5, row=5)
+
+    def hide_tab():
+        hide_profile_tab.grid_forget()
+        profile_tab.grid(column=4, row=0)
+
+        user_label.grid_forget()
+        details_button.grid_forget()
+        settings_button.grid_forget()
+        log_out_button.grid_forget()
+        delete_button.grid_forget()
+
+    def setting_screen():
+        ...
+
+    def log_out():
+        global logged_in
+        logged_in = False
+        root.destroy()
 
     def delete_account():
         global logged_in
@@ -223,46 +258,164 @@ def profile_screen():
                 data_file.write(str(len(read_data)))
                 print(len(read_data))
             logged_in = False
-            window.destroy()
+            root.destroy()
         else:
             pass
-
-    def log_out():
-        global logged_in
-        logged_in = False
-        window.destroy()
 
     def on_closing():
         global is_on
         if messagebox.askyesno("Quit", "Do you want to quit?"):
             is_on = False
-            window.destroy()
+            root.destroy()
 
+    def yearly_report():
+        x = ["Jan","Feb","Mar","Apr","May","June","July","Aug","Sept","Oct","Nov","Dec"]
+        y = []
 
-    window = Tk()
-    window.title("Expense Tracker")
-    window.minsize(width=600, height=500)
-    window.config(bg=BEIGE, padx=20, pady=10)
-    window.geometry("600x250")
-    window.protocol("WM_DELETE_WINDOW", on_closing)
-    window.eval('tk::PlaceWindow . center')
+        data = pd.read_csv("new_data.csv")
+
+        january = data[data["Month"] == "January"]
+        february = data[data["Month"] == "February"]
+        march = data[data["Month"] == "March"]
+        april = data[data["Month"] == "April"]
+        may = data[data["Month"] == "May"]
+        june = data[data["Month"] == "June"]
+        july = data[data["Month"] == "July"]
+        august = data[data["Month"] == "August"]
+        september = data[data["Month"] == "September"]
+        october = data[data["Month"] == "October"]
+        november = data[data["Month"] == "November"]
+        december = data[data["Month"] == "December"]
+
+        check = [january, february, march, april, may, june, july, august, september, october, november, december]
+
+        current_salary = 0
+        for i in range(0, 12):
+            counter = 0
+            for j in check[i].Paycheck:
+                counter += float(j)
+            y.append(counter)
+            current_salary += counter
+        print(counter)
+        print(current_salary)
+        print(y)
+
+        colors = ['red' if i < 2000 else 'green' for i in y]
+        fig, ax = plt.subplots()
+        ax.set_title(f"Yearly Income Report\nCurrent Annual Salary: " + '${:,.2f}'.format(current_salary))
+        bar_container = ax.bar(x, y, width=.6, color=colors)
+        ax.bar_label(bar_container)
+        plt.show()
+
+    def reset_data():
+        monthly_report = {
+            "Date": [],
+            "Month": [],
+            "Paycheck": []
+        }
+
+        ok_reset = messagebox.askyesno(title="Reset?", message=f"Are you sure you want to reset all of your Data?")
+
+        if ok_reset:
+            data = pd.DataFrame(monthly_report)
+            data.to_csv("new_data.csv", mode="w", index=False)
+        else:
+            pass
+
+    def submit_data():
+
+        monthly_report = {
+            "Date": [],
+            "Month": [],
+            "Paycheck": []
+        }
+
+        ok_submit = messagebox.askyesno(title="Submit?", message=f"Does this look correct?\n\nDate: {date_entry.get()}\nMonths: {clicked.get()}\nPaycheck: {payment_entry.get()}")
+
+        if ok_submit:
+            monthly_report["Date"].append(date.today())
+            monthly_report["Month"].append(clicked.get())
+            monthly_report["Paycheck"].append(payment_entry.get())
+
+            data = pd.DataFrame(monthly_report)
+            data.to_csv("new_data.csv", mode="a", index=False, header=False)
+        else:
+            pass
+        
+
+    #-------------------------UI---------------------------#
+    root = Tk()
+    root.title(f"{current_user}'s Profile")
+    root.protocol("WM_DELETE_WINDOW", on_closing)
+    root.eval('tk::PlaceWindow . center')
+    root.minsize(width=800, height=500)
+    root.maxsize(width=800, height=500)
+    root.config(bg=DARK_GREEN, padx=20, pady=10)
+
+    #------------Profile Frame-----------------#
+    profile_frame = LabelFrame(root, padx=15, pady=15, bg="black")
+    profile_frame.grid(column=4, row=0, columnspan=3, rowspan=6)
+
+    #Profile Label
+    user_label = Label(profile_frame, text=f"{current_user}".title(), font=FONT, bg="black", fg="white")
+    user_label.config(pady=10)
+    user_label.grid(column=5, row=0)
+
+    #Profile Buttons
+    details_button = Button(profile_frame, text="Account Details", command=...)
+    details_button.grid(column=5,row=1)
+    reset_button = Button(profile_frame, text="     Reset Data     ", command=reset_data)
+    reset_button.grid(column=5, row=2)
+    settings_button = Button(profile_frame, text="       Settings       ", command=...)
+    settings_button.grid(column=5, row=3)
+    log_out_button = Button(profile_frame, text="       Log Out       ", command=log_out)
+    log_out_button.grid(column=5, row=4)
+    delete_button = Button(profile_frame, text=" Delete Account ", command=delete_account)
+    delete_button.grid(column=5, row=5)
+
+    #-------------------Data Frame-------------------#
+    data_frame = LabelFrame(root, text="Data", padx=10, pady=10)
+    data_frame.grid(column=0, row=1, rowspan=6, columnspan=2)
+
+    select_month = Label(data_frame, text="Month", font=FONT)
+    select_month.grid(column=1, row=1)
+
+    clicked = StringVar()
+    month_list = OptionMenu(data_frame, clicked, *MONTHS)
+    clicked.set(f"{month_text}")
+    month_list.grid(column=2, row=1)
+
+    date_label = Label(data_frame, text="Date", font=FONT)
+    date_label.config(padx=20)
+    date_label.grid(column=1, row=2)
+    date_entry = Entry(data_frame, width=30)
+    date_entry.insert(0, date.today())
+    date_entry.grid(column=2, row=2)
+
+    payment_label = Label(data_frame, text="Paycheck", font=FONT)
+    payment_label.config(padx=40)
+    payment_label.grid(column=1, row=3)
+    payment_entry = Entry(data_frame, width=30)
+    payment_entry.grid(column=2, row=3)
+
+    #Submit
+    submit_buttom = Button(data_frame, text="Submit", width=16, command=submit_data)
+    submit_buttom.config(padx=20)
+    submit_buttom.grid(column=3, row=3)
+
+    check_report = Button(data_frame, text="Check Yearly Report", command=yearly_report)
+    check_report.grid(column=2, row=4)
 
     #Canvas
-    canvas = Canvas(width=550, height=50, bg=BEIGE, highlightbackground=SOFT_GREEN, highlightthickness=5)
-    #bg_image = PhotoImage(file="C:\\Users\\Yungstaz\\Documents\\Projects\\Expense Tracker\\img\\login_screen.png")
-    #canvas.create_image(208, 212, image=bg_image)
-    canvas.create_text(275,25, text=f"{current_user}".title(), fill=DARK_GREEN, font=("Impact", 20))
-    canvas.grid(column=0, row=0, columnspan=4)
+    canvas = Canvas(width=550, height=50, bg=BEIGE, highlightbackground=SOFT_GREEN, highlightthickness=0)
+    canvas.create_text(275,25, text="Income Tracker", fill=DARK_GREEN, font=("Impact", 20))
+    canvas.grid(column=1, row=0, columnspan=3)
 
-    #Buttons
-    delete_button = Button(text="Delete Account", command=delete_account)
-    delete_button.grid(column=0,row=1)
-
-    log_out_button = Button(text="Log Out", command=log_out)
-    log_out_button.grid(column=0,row=2)
+    root.mainloop()
 
 
-    window.mainloop()
+
+
 
 if __name__ == "__main__":
     is_on = True
