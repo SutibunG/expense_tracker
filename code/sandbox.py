@@ -24,6 +24,11 @@ ID = None
 month_text = datetime.now().strftime("%B")
 MONTHS = ["January","February","March","April","May","June", "July","August","September","October","November","December"]
 
+monthly_report = {
+    "Date": [],
+    "Month": [],
+    "Paycheck": []
+}
 
 total_users_file = "data\\total_users.txt"
 json_file = "data\\data.json"
@@ -215,12 +220,7 @@ def login_screen():
 
 def profile_screen():
     global ID
-
-    monthly_report = {
-        "Date": [],
-        "Month": [],
-        "Paycheck": []
-    }
+    global monthly_report
 
     with open(json_file, "r") as data:
         read_data = json.load(data)
@@ -338,11 +338,7 @@ def profile_screen():
         plot_canvas.get_tk_widget().grid(column=0, row=6, columnspan=3, rowspan=15, pady=10)
 
     def reset_data():
-        monthly_report = {
-            "Date": [],
-            "Month": [],
-            "Paycheck": []
-        }
+        global monthly_report
 
         ok_reset = messagebox.askyesno(title="Reset?", message=f"Are you sure you want to reset all of your Data?")
 
@@ -353,12 +349,7 @@ def profile_screen():
             pass
 
     def submit_data():
-
-        monthly_report = {
-            "Date": [],
-            "Month": [],
-            "Paycheck": []
-        }
+        global monthly_report
 
         ok_submit = messagebox.askyesno(title="Submit?", message=f"Does this look correct?\n\nDate: {date_entry.get()}\nMonths: {clicked.get()}\nPaycheck: {payment_entry.get()}")
 
@@ -496,7 +487,6 @@ def profile_screen():
 
 
     root.mainloop()
-
 
 
 if __name__ == "__main__":

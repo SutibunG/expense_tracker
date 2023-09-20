@@ -1,8 +1,9 @@
 from tkinter import *
 from tkinter import messagebox
 from datetime import *
-import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+import matplotlib.pyplot as plt
+import os
 import pandas as pd
 import time
 import json
@@ -215,10 +216,22 @@ def login_screen():
 def profile_screen():
     global ID
 
+    monthly_report = {
+        "Date": [],
+        "Month": [],
+        "Paycheck": []
+    }
+
     with open(json_file, "r") as data:
         read_data = json.load(data)
         #Returns the users info
         current_user = read_data[ID]["Username"]
+
+    data = pd.DataFrame(monthly_report)
+    if os.path.isfile(f"data\\{current_user}_data.csv"):
+        pass
+    else:
+        data.to_csv(f"data\\{current_user}_data.csv", mode="a+", index=False)
 
 
     def show_tab():
@@ -266,6 +279,8 @@ def profile_screen():
                 data_file.write(str(len(read_data)))
                 print(len(read_data))
             logged_in = False
+
+            os.remove(f"data\\{current_user}_data.csv")
             root.destroy()
             plt.close()
         else:
@@ -286,7 +301,7 @@ def profile_screen():
         x = ["Jan","Feb","Mar","Apr","May","June","July","Aug","Sept","Oct","Nov","Dec"]
         y = []
 
-        data = pd.read_csv("new_data.csv")
+        data = pd.read_csv(f"data\\{current_user}_data.csv")
 
         january = data[data["Month"] == "January"]
         february = data[data["Month"] == "February"]
@@ -333,7 +348,7 @@ def profile_screen():
 
         if ok_reset:
             data = pd.DataFrame(monthly_report)
-            data.to_csv("new_data.csv", mode="w", index=False)
+            data.to_csv(f"data\\{current_user}_data.csv", mode="w", index=False)
         else:
             pass
 
@@ -353,7 +368,7 @@ def profile_screen():
             monthly_report["Paycheck"].append(payment_entry.get())
 
             data = pd.DataFrame(monthly_report)
-            data.to_csv("new_data.csv", mode="a", index=False, header=False)
+            data.to_csv(f"data\\{current_user}_data.csv", mode="a", index=False, header=False)
         else:
             pass
         
