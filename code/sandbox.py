@@ -1,8 +1,8 @@
 from tkinter import *
 from tkinter import messagebox
 from datetime import *
-import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+import matplotlib.pyplot as plt
 import os
 import pandas as pd
 import time
