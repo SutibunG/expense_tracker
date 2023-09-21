@@ -1,14 +1,9 @@
 [
     {
-        "Username": "Kitsune",
+        "Username": "stephen",
         "ID": 0,
-        "Name": "Kitsune CG",
-        "Password": "new_pass"
-    },
-    {
-        "Username": "Stephen",
-        "ID": 2,
         "Name": "",
-        "Password": "1234"
+        "Password": "1234",
+        "Goal": 100000
     }
 ]
