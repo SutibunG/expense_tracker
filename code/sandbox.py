@@ -55,8 +55,7 @@ def login_screen():
                     "Goal": 0,
                 }
 
-        #try:
-            #Checks for space in username
+
         for i in new_user:
             if i == " ":
                 messagebox.showerror(title="Name Error", message=f"The username: {new_user} cannot contain spaces.")
@@ -117,9 +116,7 @@ def login_screen():
             messagebox.showerror(title="Password Error", message="Please make sure password is atleast 4 characters long.")
         else:
             pass
-        #except:
-            #messagebox.showerror(title="Login Info", message="Please Enter Valid Username and Password.")
- 
+    
     def login():
         global logged_in
         global ID
@@ -230,7 +227,6 @@ def profile_screen():
         current_user = read_data[ID]["Username"]
         user_goal = read_data[ID]["Goal"]
 
-    print(user_goal)
 
     data = pd.DataFrame(monthly_report)
     #Creates a data file for the User if doesn't have one
@@ -238,27 +234,6 @@ def profile_screen():
         pass
     else:
         data.to_csv(f"data\\{current_user}_data.csv", mode="a+", index=False)
-
-
-    def show_tab():
-        profile_tab.grid_forget()
-        hide_profile_tab.grid(column=5, row=0)
-        
-        user_label.grid(column=5, row=1)
-        details_button.grid(column=5,row=2)
-        settings_button.grid(column=5, row=3)
-        log_out_button.grid(column=5, row=4)
-        delete_button.grid(column=5, row=5)
-
-    def hide_tab():
-        hide_profile_tab.grid_forget()
-        profile_tab.grid(column=4, row=0)
-
-        user_label.grid_forget()
-        details_button.grid_forget()
-        settings_button.grid_forget()
-        log_out_button.grid_forget()
-        delete_button.grid_forget()
 
     def log_out():
         global logged_in
@@ -386,7 +361,6 @@ def profile_screen():
         else:
             pass
     
-
     def dark_mode():
         root.config(bg=DARK_GREY)
     def light_mode():
@@ -499,7 +473,7 @@ def profile_screen():
     canvas.create_text(615,120, text="Remaining\n\n", font=("Impact", 15), fill="white")
     canvas.grid(column=0, row=0, columnspan=3, rowspan=6)
 
-
+    #Goal Text
     update_goal_text = canvas.create_text(130, 140, text="${:,.2f}".format(user_goal), font=("Impact", 15), fill="white")
     remaing_salary = user_goal - int(current_salary)
     remaining_text = canvas.create_text(615,140, text="${:,.2f}".format(remaing_salary), font=("Impact", 15), fill="white")
