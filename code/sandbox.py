@@ -278,6 +278,11 @@ def profile_screen():
         global current_salary
         global plot_canvas
 
+        with open(json_file, "r") as data:
+            read_data = json.load(data)
+            #Updates color on bar chart
+            user_goal = read_data[ID]["Goal"]
+
         plt.close()
         x = ["Jan","Feb","Mar","Apr","May","June","July","Aug","Sept","Oct","Nov","Dec"]
         y = []
@@ -307,11 +312,10 @@ def profile_screen():
             y.append(counter)
             current_salary += counter
 
-        colors = ['red' if i < 2000 else 'green' for i in y]
+        colors = ['red' if i < (user_goal / 12) else 'green' for i in y]
         fig, ax = plt.subplots(facecolor=BLUE)
         ax.set_facecolor(BEIGE)
         ax.set_title("Overview", loc="left")
-        #ax.set_title(f"Yearly Income Report\nCurrent Annual Salary: " + '${:,.2f}'.format(current_salary))
         bar_container = ax.bar(x, y, width=.6, color=colors)
         ax.bar_label(bar_container)
 
